@@ -1,28 +1,52 @@
 'use strict'
 
 import React, { Component } from 'react'
+import Axios from 'axios'
 import AppContent from './components/app-content'
 
 class App extends Component {
 
-  constructor (){
+  constructor() {
     super()
     this.state = {
-      temosCep: '37264000',
       results: {
-        logradouro: 'Rua Nossa Senhora Aparecida',
-        bairro: 'Centro',
-        cidade: 'Ribeirão Vermelho',
-        estado: 'MG',
-        ddd: '35'
+        logradouro: '',
+        bairro: '',
+        cidade: '',
+        estado: '',
+        ddd: ''
       }
     }
   }
 
+  handleSearch(e) {
+    const value = e.target.value
+    const keyCode = e.which || e.keyCode
+    const enter = 13
+    if (keyCode === enter) {
+      Axios.get(`https://viacep.com.br/ws/${value}/json`)
+        .then((response) => {
+          console.log(response.data)
+          this.setState({
+            results:{
+              logradouro: response.data.logradouro,
+              bairro: response.data.bairro,
+              cidade: response.data.localidade,
+              estado: response.data.uf,
+              ddd: response.data.ddd
+            }
+          })
+        }).catch((erro) => {
+          console.log('Deu erro', erro)
+        })
+    }
+  }
+
+
   render() {
-    return <AppContent 
-      temosCep = {this.state.temosCep}
-      results = {this.state.results}
+    return <AppContent
+      results={this.state.results}
+      handleSearch={(e) => this.handleSearch(e)}
     />
   }
 }
